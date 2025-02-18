@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador</title>
+    <title>Sorteio de Nomes</title>
     <style>
-        /* Estilos gerais */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
             background-color: #000;
             color: #ffa500;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Garante que o conteúdo ocupe toda a altura da tela */
+            padding-bottom: 50px; /* Espaço para garantir que o conteúdo não sobreponha o rodapé */
         }
-
-        /* Caixa de texto e outros elementos */
         textarea, input, button {
             background: #222;
             color: #ffa500;
@@ -26,35 +21,34 @@
             margin: 5px;
             border-radius: 5px;
         }
-
         textarea {
             width: 80%;
-            height: 170px; /* Aumenta a altura inicial */
+            height: 150px;
         }
-
         button {
             cursor: pointer;
         }
-
-        /* Rodapé */
         footer {
-            margin-top: auto; /* Empurra o rodapé para o final da tela */
+            margin-top: 40px; /* Ajusta o espaço acima do rodapé */
             padding: 10px;
-            font-size: 12px; /* Diminuir a fonte do rodapé */
+            font-size: 14px;
             color: #ffa500;
             opacity: 0.8;
+            position: fixed; /* Fixa o rodapé no fundo da tela */
+            left: 0;
+            bottom: 0; /* Coloca o rodapé no fundo da tela */
+            width: 100%; /* Faz o rodapé ocupar toda a largura da tela */
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <h2>Sorteador</h2>
+    <h2>Sorteio de Nomes</h2>
 
-    <!-- Campo de entrada para colar nomes -->
     <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
     <br>
 
-    <!-- Campo para escolher a quantidade de sorteados -->
     <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
     <br>
 
@@ -71,7 +65,6 @@
         function carregarNomes() {
             let input = document.getElementById("inputNomes").value;
 
-            // Quebra a string em linhas ou tabulações (caso tenha copiado do Excel)
             nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
 
             alert(`Lista carregada com ${nomes.length} participantes!`);
