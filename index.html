@@ -20,6 +20,10 @@
             margin: 5px;
             border-radius: 5px;
         }
+        textarea {
+            width: 80%;
+            height: 150px;
+        }
         button {
             cursor: pointer;
         }
@@ -27,7 +31,7 @@
 </head>
 <body>
 
-    <h2>Sorteio de Nomes</h2>
+    <h2>Sorteador Liv</h2>
 
     <!-- Campo de entrada para colar nomes -->
     <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
@@ -41,6 +45,8 @@
     <button onclick="sortear()">Sortear</button>
 
     <h2 id="resultado"></h2>
+
+    <footer>Desenvolvido por Lívia Mattos</footer>
 
     <script>
         let nomes = [];
