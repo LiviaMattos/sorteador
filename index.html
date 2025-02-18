@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio de Nomes (Copiar e Colar)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #f4f4f4;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Sorteio de Nomes</h2>
+
+    <!-- Campo de entrada para colar nomes -->
+    <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
+    <br>
+    <button onclick="carregarNomes()">Carregar Lista</button>
+
+    <h3>Participantes:</h3>
+    <ul id="lista"></ul>
+
+    <button onclick="sortear()">Sortear</button>
+    <h2 id="resultado"></h2>
+
+    <script>
+        let nomes = [];
+
+        function carregarNomes() {
+            let input = document.getElementById("inputNomes").value;
+
+            // Quebra a string em linhas ou tabulações (caso tenha copiado do Excel)
+            nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
+
+            atualizarLista();
+        }
+
+        function atualizarLista() {
+            let lista = document.getElementById("lista");
+            lista.innerHTML = "";
+            nomes.forEach(nome => {
+                let li = document.createElement("li");
+                li.textContent = nome;
+                lista.appendChild(li);
+            });
+        }
+
+        function sortear() {
+            if (nomes.length === 0) {
+                document.getElementById("resultado").innerText = "Adicione nomes antes de sortear!";
+                return;
+            }
+            let sorteado = nomes[Math.floor(Math.random() * nomes.length)];
+            document.getElementById("resultado").innerText = `Sorteado: ${sorteado}`;
+        }
+    </script>
+
+</body>
+</html>
