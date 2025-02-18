@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio de Nomes (Copiar e Colar)</title>
+    <title>Sorteador Liv</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
+            background-color: #000;
+            color: #ffa500;
         }
-        textarea {
-            width: 80%;
-            height: 100px;
-            margin-bottom: 10px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: #f4f4f4;
-            margin: 5px;
+        textarea, input, button {
+            background: #222;
+            color: #ffa500;
+            border: 1px solid #ffa500;
             padding: 10px;
+            margin: 5px;
             border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -34,12 +32,14 @@
     <!-- Campo de entrada para colar nomes -->
     <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
     <br>
+
+    <!-- Campo para escolher a quantidade de sorteados -->
+    <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
+    <br>
+
     <button onclick="carregarNomes()">Carregar Lista</button>
-
-    <h3>Participantes:</h3>
-    <ul id="lista"></ul>
-
     <button onclick="sortear()">Sortear</button>
+
     <h2 id="resultado"></h2>
 
     <script>
@@ -51,26 +51,31 @@
             // Quebra a string em linhas ou tabulações (caso tenha copiado do Excel)
             nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
 
-            atualizarLista();
-        }
-
-        function atualizarLista() {
-            let lista = document.getElementById("lista");
-            lista.innerHTML = "";
-            nomes.forEach(nome => {
-                let li = document.createElement("li");
-                li.textContent = nome;
-                lista.appendChild(li);
-            });
+            alert(`Lista carregada com ${nomes.length} participantes!`);
         }
 
         function sortear() {
+            let qtd = parseInt(document.getElementById("qtdSorteados").value) || 1;
+
             if (nomes.length === 0) {
                 document.getElementById("resultado").innerText = "Adicione nomes antes de sortear!";
                 return;
             }
-            let sorteado = nomes[Math.floor(Math.random() * nomes.length)];
-            document.getElementById("resultado").innerText = `Sorteado: ${sorteado}`;
+
+            if (qtd > nomes.length) {
+                document.getElementById("resultado").innerText = "Quantidade maior que o número de participantes!";
+                return;
+            }
+
+            let sorteados = [];
+            let copiaNomes = [...nomes];
+
+            for (let i = 0; i < qtd; i++) {
+                let indice = Math.floor(Math.random() * copiaNomes.length);
+                sorteados.push(copiaNomes.splice(indice, 1)[0]);
+            }
+
+            document.getElementById("resultado").innerText = `Sorteados: ${sorteados.join(", ")}`;
         }
     </script>
 
