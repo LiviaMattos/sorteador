@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio de Nomes</title>
+    <title>Sorteador</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,22 +29,22 @@
             cursor: pointer;
         }
         footer {
-            margin-top: 40px; /* Ajusta o espaço acima do rodapé */
+            margin-top: 40px;
             padding: 10px;
             font-size: 14px;
             color: #ffa500;
             opacity: 0.8;
-            position: fixed; /* Fixa o rodapé no fundo da tela */
+            position: fixed;
             left: 0;
-            bottom: 0; /* Coloca o rodapé no fundo da tela */
-            width: 100%; /* Faz o rodapé ocupar toda a largura da tela */
+            bottom: 0;
+            width: 100%;
             text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <h2>Sorteio de Nomes</h2>
+    <h2>Sorteador</h2>
 
     <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
     <br>
@@ -52,7 +52,6 @@
     <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
     <br>
 
-    <button onclick="carregarNomes()">Carregar Lista</button>
     <button onclick="sortear()">Sortear</button>
 
     <h2 id="resultado"></h2>
@@ -60,18 +59,11 @@
     <footer>Desenvolvido por Lívia Mattos</footer>
 
     <script>
-        let nomes = [];
-
-        function carregarNomes() {
-            let input = document.getElementById("inputNomes").value;
-
-            nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
-
-            alert(`Lista carregada com ${nomes.length} participantes!`);
-        }
-
         function sortear() {
+            let input = document.getElementById("inputNomes").value;
             let qtd = parseInt(document.getElementById("qtdSorteados").value) || 1;
+
+            let nomes = [...new Set(input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome))];
 
             if (nomes.length === 0) {
                 document.getElementById("resultado").innerText = "Adicione nomes antes de sortear!";
