@@ -11,7 +11,7 @@
             margin-top: 50px;
             background-color: #000;
             color: #ffa500;
-            padding-bottom: 50px; /* Espaço para garantir que o conteúdo não sobreponha o rodapé */
+            padding-bottom: 50px; 
         }
         textarea, input, button {
             background: #222;
@@ -39,6 +39,10 @@
             bottom: 0;
             width: 100%;
             text-align: center;
+        }
+
+        #resultado {
+            color: white;
         }
     </style>
 </head>
@@ -83,7 +87,8 @@
                 sorteados.push(copiaNomes.splice(indice, 1)[0]);
             }
 
-            document.getElementById("resultado").innerText = `Sorteados: ${sorteados.join(", ")}`;
+            document.getElementById("resultado").innerHTML = `<h3>Sorteados:</h3><ul><li>${sorteados.join("</li><li>")}</li></ul>`;
+
         }
     </script>
 
