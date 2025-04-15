@@ -11,7 +11,7 @@
             margin-top: 50px;
             background-color: #000;
             color: #ffa500;
-            padding-bottom: 50px; 
+            padding-bottom: 50px;
         }
         textarea, input, button {
             background: #222;
@@ -40,7 +40,6 @@
             width: 100%;
             text-align: center;
         }
-
         #resultado {
             color: white;
         }
@@ -56,39 +55,49 @@
     <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
     <br>
 
-    <button onclick="sortear()">Sortear</button>
+    <button onclick="iniciarSorteio()">Sortear</button>
+    <button onclick="sortearNovamente()">Sortear novamente</button>
 
     <h2 id="resultado"></h2>
 
     <footer>Desenvolvido por Lívia Mattos</footer>
 
     <script>
-        function sortear() {
+        let nomesOriginais = [];
+        let nomesRestantes = [];
+
+        function iniciarSorteio() {
             let input = document.getElementById("inputNomes").value;
+            nomesOriginais = [...new Set(input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome))];
+            nomesRestantes = [...nomesOriginais]; // reinicia os nomes disponíveis
+            sortear();
+        }
+
+        function sortear() {
             let qtd = parseInt(document.getElementById("qtdSorteados").value) || 1;
 
-            let nomes = [...new Set(input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome))];
-
-            if (nomes.length === 0) {
-                document.getElementById("resultado").innerText = "Adicione nomes antes de sortear!";
+            if (nomesRestantes.length === 0) {
+                document.getElementById("resultado").innerText = "Todos os nomes já foram sorteados!";
                 return;
             }
 
-            if (qtd > nomes.length) {
-                document.getElementById("resultado").innerText = "Quantidade maior que o número de participantes!";
+            if (qtd > nomesRestantes.length) {
+                document.getElementById("resultado").innerText = "Quantidade maior que o número de nomes restantes!";
                 return;
             }
 
             let sorteados = [];
-            let copiaNomes = [...nomes];
 
             for (let i = 0; i < qtd; i++) {
-                let indice = Math.floor(Math.random() * copiaNomes.length);
-                sorteados.push(copiaNomes.splice(indice, 1)[0]);
+                let indice = Math.floor(Math.random() * nomesRestantes.length);
+                sorteados.push(nomesRestantes.splice(indice, 1)[0]); // remove da lista de restantes
             }
 
             document.getElementById("resultado").innerHTML = `<h3>Sorteados:</h3><ul><li>${sorteados.join("</li><li>")}</li></ul>`;
+        }
 
+        function sortearNovamente() {
+            sortear(); // reutiliza a função, mas agora com nomesRestantes atualizados
         }
     </script>
 
