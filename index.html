@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador</title>
+    <title>Sorteador Fácil</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,18 +22,24 @@
             border-radius: 5px;
         }
         textarea {
-            width: 80%;
-            height: 150px;
+            width: 50%;
+            height: 250px;
         }
         button {
             cursor: pointer;
         }
+        .observacao {
+            font-size: 12px;
+            color: #ccc;
+            margin-top: -5px;
+            margin-bottom: 15px;
+        }
         footer {
             margin-top: 40px;
-            padding: 10px;
-            font-size: 14px;
-            color: #ffa500;
-            opacity: 0.8;
+            padding: 5px;
+            font-size: 12px;
+            color: #888;
+            opacity: 0.9;
             position: fixed;
             left: 0;
             bottom: 0;
@@ -47,28 +53,35 @@
 </head>
 <body>
 
-    <h2>Sorteador</h2>
+    <h2>Sorteador Fácil</h2>
 
-    <textarea id="inputNomes" placeholder="Cole os nomes aqui, um por linha ou separados por tabulação"></textarea>
+    <textarea id="inputNomes" placeholder="Cole os nomes ou e-mails aqui, um por linha ou separados por tabulação"></textarea>
     <br>
 
     <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
     <br>
 
-    <button onclick="iniciarSorteio()">Sortear</button>
+    <button onclick="iniciarSorteio(true)">Sortear (ignorar duplicados)</button>
+    <button onclick="iniciarSorteio(false)">Sortear (considerar duplicados)</button>
+    <br>
     <button onclick="sortearNovamente()">Sortear novamente</button>
+    <div class="observacao">⚠️ Esse botão ignora os nomes que já foram sorteados anteriormente</div>
 
     <h2 id="resultado"></h2>
 
-    <footer>Desenvolvido por Lívia Mattos</footer>
+    <footer>Desenvolvido por @livmreis com colaboração de IA Generativa</footer>
 
     <script>
         let nomesOriginais = [];
         let nomesRestantes = [];
 
-        function iniciarSorteio() {
+        function iniciarSorteio(ignorarDuplicados) {
             let input = document.getElementById("inputNomes").value;
-            nomesOriginais = [...new Set(input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome))];
+            let nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
+
+            // Se o usuário escolher ignorar duplicados, usamos Set
+            nomesOriginais = ignorarDuplicados ? [...new Set(nomes)] : nomes;
+
             nomesRestantes = [...nomesOriginais]; // reinicia os nomes disponíveis
             sortear();
         }
