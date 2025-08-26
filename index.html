@@ -1,118 +1,374 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador Fácil</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: #000;
-            color: #ffa500;
-            padding-bottom: 50px;
-        }
-        textarea, input, button {
-            background: #222;
-            color: #ffa500;
-            border: 1px solid #ffa500;
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-        }
-        textarea {
-            width: 50%;
-            height: 250px;
-        }
-        button {
-            cursor: pointer;
-        }
-        .observacao {
-            font-size: 12px;
-            color: #ccc;
-            margin-top: -5px;
-            margin-bottom: 15px;
-        }
-        footer {
-            margin-top: 40px;
-            padding: 5px;
-            font-size: 12px;
-            color: #888;
-            opacity: 0.9;
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-        }
-        #resultado {
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorteador Fácil</title>
+  <style>
+    :root{
+      --bg:#000;
+      --fg:#ffa500;
+      --muted:#888;
+      --accent:#ffae33;
+      --white:#fff;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 40px 16px 80px;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    h1,h2,h3{margin: 0 0 8px}
+    h1{font-size: clamp(26px, 3.5vw, 36px)}
+    h2{font-size: clamp(18px, 2.4vw, 22px); font-weight: 600; opacity:.95}
+    .wrap{max-width: 980px; margin: 0 auto;}
+    textarea, input, button{
+      background: #1b1b1b;
+      color: var(--fg);
+      border: 1px solid var(--fg);
+      padding: 10px 12px;
+      margin: 6px;
+      border-radius: 10px;
+      outline: none;
+    }
+    textarea{
+      width: min(680px, 90vw);
+      height: 240px;
+      line-height: 1.35;
+      resize: vertical;
+    }
+    input[type="number"]{width: 220px; text-align: center;}
+    button{
+      cursor: pointer; border: none;
+      background: linear-gradient(135deg, var(--fg), var(--accent));
+      color: #111; font-weight: 700;
+      box-shadow: 0 6px 18px rgba(255,168,0,.18);
+      transition: transform .06s ease, filter .2s ease, opacity .2s ease;
+    }
+    button:hover{filter: brightness(1.05)}
+    button:active{transform: translateY(1px)}
+    button:disabled{opacity:.55; cursor:not-allowed}
+    .observacao{
+      font-size: 12px; color: #ccc; margin-top: 2px; margin-bottom: 18px;
+    }
+    footer{
+      position: fixed; left:0; right:0; bottom:0;
+      padding: 8px 12px; font-size: 12px; color: var(--muted);
+      text-align:center;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.03));
+      backdrop-filter: blur(3px);
+    }
+    /* Modal */
+    .overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; z-index: 20;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width: min(640px, 96vw);
+      background: linear-gradient(180deg, #141414, #0f0f0f);
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03);
+      padding: 18px 18px 22px; color: var(--white);
+      position: relative; overflow: hidden;
+    }
+    .modal header{display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 10px;}
+    .modal header h3{font-size:20px; margin:0}
+    .close{background: transparent; color: var(--white); border: 1px solid #444; padding: 6px 10px; border-radius: 10px;}
+    .countdown{display:flex; align-items:center; justify-content:center; gap: 12px; height: 120px; margin: 8px 0 4px;}
+    .digit{
+      width: 88px; height: 88px; display:flex; align-items:center; justify-content:center;
+      border-radius: 14px; font-size: 44px; font-weight: 800; color:#111;
+      background: linear-gradient(135deg, var(--fg), var(--accent));
+      box-shadow: 0 10px 40px rgba(255,168,0,.25);
+      animation: pop .45s ease;
+    }
+    @keyframes pop{0%{transform: scale(.8); filter: blur(2px); opacity:.5}100%{transform: scale(1); filter: blur(0); opacity:1}}
+    .result{display:none; margin-top: 6px; text-align: left; background: #0b0b0b; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px;}
+    .result.show{display:block}
+    .result h4{margin: 0 0 8px; font-size: 16px; color: var(--fg);}
+    .winners{list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; grid-template-columns: 1fr;}
+    .tag{display:inline-flex; align-items:center; gap:10px; background:#161616; border:1px solid #2a2a2a; border-radius: 100px; padding: 8px 12px; line-height:1;}
+    .tag .dot{width:8px; height:8px; border-radius:50%; background: linear-gradient(135deg, var(--fg), var(--accent)); box-shadow: 0 0 8px rgba(255,168,0,.6);}
+    .modal footer{margin-top: 14px; display:flex; gap:8px; justify-content:flex-end; background: transparent;}
+    .ghost{background:#1d1d1d; color:#ddd; border:1px solid #333; box-shadow:none;}
+    @media (max-width:480px){.digit{width:74px;height:74px;font-size:38px} textarea{height:200px}}
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>Sorteador Fácil</h1>
+    <h2>Cole sua lista, escolha a quantidade e sorteie ✨</h2>
 
-    <h2>Sorteador Fácil</h2>
+    <textarea id="inputNomes" placeholder="Cole os nomes ou e-mails aqui, um por linha ou separados por tabulação"></textarea><br/>
+    <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear"/><br/>
 
-    <textarea id="inputNomes" placeholder="Cole os nomes ou e-mails aqui, um por linha ou separados por tabulação"></textarea>
-    <br>
+    <button id="btnIgnorar" onclick="iniciarSorteio(true)">Sortear (ignorar duplicados)</button>
+    <button id="btnConsiderar" onclick="iniciarSorteio(false)">Sortear (considerar duplicados)</button>
+    <br/>
+    <button id="btnNovamente" class="ghost" onclick="sortearNovamente()">Sortear novamente</button>
+    <div class="observacao">⚠️ Este botão respeita a lista restante, ignorando os nomes que já saíram.</div>
+  </div>
 
-    <input type="number" id="qtdSorteados" min="1" placeholder="Quantidade a sortear">
-    <br>
+  <footer>Desenvolvido por @livmreis com colaboração de IA Generativa</footer>
 
-    <button onclick="iniciarSorteio(true)">Sortear (ignorar duplicados)</button>
-    <button onclick="iniciarSorteio(false)">Sortear (considerar duplicados)</button>
-    <br>
-    <button onclick="sortearNovamente()">Sortear novamente</button>
-    <div class="observacao">⚠️ Esse botão ignora os nomes que já foram sorteados anteriormente</div>
+  <!-- Modal -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header>
+        <h3 id="modalTitle">Preparando o resultado…</h3>
+        <button class="close" onclick="fecharModal()" aria-label="Fechar">Fechar</button>
+      </header>
 
-    <h2 id="resultado"></h2>
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="digit" id="digit">3</div>
+      </div>
 
-    <footer>Desenvolvido por @livmreis com colaboração de IA Generativa</footer>
+      <div class="result" id="resultBox">
+        <h4>Sorteados:</h4>
+        <ul id="winnersList" class="winners"></ul>
+      </div>
 
-    <script>
-        let nomesOriginais = [];
-        let nomesRestantes = [];
+      <footer>
+        <button class="ghost" onclick="fecharModal()">Fechar</button>
+        <button onclick="sortearNovamente()">Sortear novamente</button>
+      </footer>
+    </div>
+  </div>
 
-        function iniciarSorteio(ignorarDuplicados) {
-            let input = document.getElementById("inputNomes").value;
-            let nomes = input.split(/\r?\n|\t/).map(nome => nome.trim()).filter(nome => nome);
+  <script>
+    let nomesOriginais = [];
+    let nomesRestantes = [];
+    let ignorandoDuplicados = true;
+    let countdownTimer = null; // evita timers órfãos
+    const BTN_DISABLE_MS = 3500;
 
-            // Se o usuário escolher ignorar duplicados, usamos Set
-            nomesOriginais = ignorarDuplicados ? [...new Set(nomes)] : nomes;
+    const overlay   = document.getElementById('overlay');
+    const digitBox  = document.getElementById('digit');
+    const countdown = document.getElementById('countdown');
+    const resultBox = document.getElementById('resultBox');
+    const winnersUl = document.getElementById('winnersList');
+    const modalTitle= document.getElementById('modalTitle');
 
-            nomesRestantes = [...nomesOriginais]; // reinicia os nomes disponíveis
-            sortear();
+    function iniciarSorteio(ignorarDuplicados){
+      ignorandoDuplicados = ignorarDuplicados;
+
+      const input = document.getElementById("inputNomes").value;
+      const nomes = input
+        .split(/\r?\n|\t/)
+        .map(n => n.trim())
+        .filter(n => n);
+
+      if(nomes.length === 0){
+        abrirModalMensagem("Ops!", ["Cole ao menos um nome na lista."]);
+        return;
+      }
+
+      nomesOriginais = ignorandoDuplicados ? [...new Set(nomes)] : [...nomes];
+
+      if(nomesOriginais.length === 0){
+        abrirModalMensagem("Ops!", ["A lista ficou vazia após remover duplicados."]);
+        return;
+      }
+
+      nomesRestantes = [...nomesOriginais];
+      sortearComSuspense();
+    }
+
+    function sortearNovamente(){
+      if(nomesRestantes.length === 0){
+        abrirModalMensagem("Fim dos nomes", ["Todos os nomes já foram sorteados."]);
+        return;
+      }
+      sortearComSuspense();
+    }
+
+    function sortearComSuspense(){
+      const qtd = parseInt(document.getElementById("qtdSorteados").value) || 1;
+
+      if (qtd < 1){
+        abrirModalMensagem("Quantidade inválida", ["Informe um número a partir de 1."]);
+        return;
+      }
+      if (qtd > nomesRestantes.length){
+        abrirModalMensagem("Quantidade maior que o restante", [`Você pediu ${qtd}, mas só restam ${nomesRestantes.length}.`]);
+        return;
+      }
+
+      toggleBotoes(true);
+
+      modalTitle.textContent = "Preparando o resultado…";
+      resultBox.classList.remove('show');
+      winnersUl.innerHTML = "";
+      countdown.style.display = 'flex';
+      digitBox.textContent = '3';
+      abrirModal();
+
+      let t = 3;
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        t--;
+        digitBox.textContent = String(t);
+        digitBox.style.animation = 'none';
+        void digitBox.offsetWidth; // reinicia animação
+        digitBox.style.animation = '';
+        if (t === 0){
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          revelarResultado(qtd);
         }
+      }, 1000);
+    }
 
-        function sortear() {
-            let qtd = parseInt(document.getElementById("qtdSorteados").value) || 1;
+    function revelarResultado(qtd){
+      const sorteados = [];
+      for (let i = 0; i < qtd; i++){
+        const idx = Math.floor(Math.random() * nomesRestantes.length);
+        const [nome] = nomesRestantes.splice(idx, 1);
+        sorteados.push(nome);
+      }
 
-            if (nomesRestantes.length === 0) {
-                document.getElementById("resultado").innerText = "Todos os nomes já foram sorteados!";
-                return;
-            }
+      modalTitle.textContent = "Resultado do sorteio";
+      countdown.style.display = 'none';
+      winnersUl.innerHTML = sorteados
+        .map(n => `<li class="tag"><span class="dot"></span> ${escapeHtml(n)}</li>`)
+        .join("");
+      resultBox.classList.add('show');
 
-            if (qtd > nomesRestantes.length) {
-                document.getElementById("resultado").innerText = "Quantidade maior que o número de nomes restantes!";
-                return;
-            }
+      launchConfetti(); // 🎊 dispara o efeito
+      setTimeout(()=>toggleBotoes(false), 400);
+    }
 
-            let sorteados = [];
+    function abrirModal(){
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function fecharModal(){
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; } // garante limpeza
+    }
 
-            for (let i = 0; i < qtd; i++) {
-                let indice = Math.floor(Math.random() * nomesRestantes.length);
-                sorteados.push(nomesRestantes.splice(indice, 1)[0]); // remove da lista de restantes
-            }
+    function abrirModalMensagem(titulo, linhas){
+      modalTitle.textContent = titulo || "Aviso";
+      countdown.style.display = 'none';
+      winnersUl.innerHTML = (linhas || []).map(l => `<li class="tag"><span class="dot"></span> ${escapeHtml(l)}</li>`).join("");
+      resultBox.classList.add('show');
+      abrirModal();
+    }
 
-            document.getElementById("resultado").innerHTML = `<h3>Sorteados:</h3><ul><li>${sorteados.join("</li><li>")}</li></ul>`;
-        }
+    function toggleBotoes(disabled){
+      ["btnIgnorar","btnConsiderar","btnNovamente"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = disabled;
+        if (disabled){ setTimeout(()=>{ el.disabled = false; }, BTN_DISABLE_MS); }
+      });
+    }
 
-        function sortearNovamente() {
-            sortear(); // reutiliza a função, mas agora com nomesRestantes atualizados
-        }
-    </script>
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, m => (
+        { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[m]
+      ));
+    }
 
+    /* Confete simples com canvas */
+    function launchConfetti({
+      duration = 2200,
+      particleCount = 160,
+      spread = Math.PI * 2,
+      startVelocity = 7,
+      gravity = 0.15,
+      drift = 0.005,
+      colors = ["#ffa500","#ffae33","#ffd580","#7a33ff","#b388ff","#ffffff"]
+    } = {}) {
+      const canvas = document.createElement("canvas");
+      Object.assign(canvas.style, {
+        position: "fixed", inset: 0, width: "100vw", height: "100vh",
+        pointerEvents: "none", zIndex: 9999
+      });
+      document.body.appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const resize = () => {
+        canvas.width  = Math.floor(window.innerWidth  * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+      };
+      resize();
+      const onResize = () => resize();
+      window.addEventListener("resize", onResize);
+
+      const rand = (min, max) => Math.random() * (max - min) + min;
+
+      // origem próxima ao topo do modal, se existir
+      const modal = document.querySelector('.modal');
+      const rect = modal?.getBoundingClientRect();
+      const cx = rect ? (rect.left + rect.width/2) * dpr : canvas.width/2;
+      const cy = rect ? (rect.top + rect.height*0.25) * dpr : canvas.height/3;
+
+      const particles = Array.from({ length: particleCount }, () => {
+        const angle = rand(-spread/2, spread/2);
+        const speed = rand(startVelocity * 0.7, startVelocity * 1.3);
+        return {
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed * dpr + rand(-1,1),
+          vy: Math.sin(angle) * speed * dpr - rand(2,4),
+          size: rand(4, 8) * dpr,
+          rotation: rand(0, Math.PI*2),
+          rotationSpeed: rand(-0.2, 0.2),
+          color: colors[(Math.random()*colors.length)|0],
+          alpha: 1
+        };
+      });
+
+      const start = performance.now();
+      let stopped = false;
+
+      function tick(now) {
+        const elapsed = now - start;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.vy += gravity * dpr;
+          p.vx += (Math.random()-0.5) * drift * canvas.width * 0.001;
+          p.x  += p.vx; p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+
+          const life = 1 - (elapsed / duration);
+          p.alpha = Math.max(0, life);
+
+          ctx.globalAlpha = p.alpha;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.7);
+          ctx.restore();
+        });
+
+        ctx.globalAlpha = 1;
+
+        if (elapsed < duration && !stopped) requestAnimationFrame(tick);
+        else cleanup();
+      }
+
+      function cleanup() {
+        stopped = true;
+        window.removeEventListener("resize", onResize);
+        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+      }
+
+      requestAnimationFrame(tick);
+    }
+  </script>
 </body>
 </html>
